@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>crud</title>
+</head>
+<body>
+  <h1>Crud abdala</h1>
+
+  <h2>Ingresar datos en la tabla Jugadores</h2>
+
+  <form id="form">
+    <label for="title">Nombre:</label>
+    <input type="text" id="nombre" required>
+    <label for="description">Edad:</label>
+    <input type="text" id="edad" required>
+    <label for="description">Estatura:</label>
+    <input type="text" id="estatura" required>
+    <label for="description">Nacionalidad:</label>
+    <input type="text" id="nacionalidad" required>
+    <label for="description">Posicion:</label>
+    <input type="text" id="posicion" required>
+    <label for="description">Peso:</label>
+    <input type="text" id="peso" required>
+
+    <button type="submit">Agregar</button>
+  </form>
+
+  <button id="listarArgentinos">Listar Jugadores Argentinos</button>
+  <button id="listarPeso">Listar Jugadores con peso entre 75kg y 80kg</button>
+  <button id="alto">Listar Jugador mas alto</button>
+
+  <label for="borrarPosicion">Borrar por posicion:</label>
+  <input type="text" id="borrarPosicion" placeholder="Ingrese la posición">
+  <button id="borrarPorPosicion">Borrar por PosicionÑ</button>
+
+  <label for="modificar">Modificar nombre:</label>
+  <input type="text" id="modificarNombre" placeholder="Ingrese el nombre del jugador">
+  <button id="modificar">Modificar nombre</button>
+
+
+  <h2></h2>
+  <ul id="datos">
+  </ul>
+
+  <script>
+    const formulario = document.getElementById("form");
+    const datosImprimir = document.getElementById("datos");
+
+    formulario.addEventListener("submit", (event) => {
+      event.preventDefault();
+
+      const nombre = document.getElementById("nombre").value;
+      const edad = document.getElementById("edad").value;
+      const estatura = document.getElementById("estatura").value;
+      const nacionalidad = document.getElementById("nacionalidad").value;
+      const pos = document.getElementById("posicion").value;
+      const peso = document.getElementById("peso").value;
+
+      fetch("/datos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ nombre, edad, estatura, nacionalidad, pos, peso }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+
+          mostrar();
+        })
+        .catch((error) => {
+          console.error("Error al crear jogador:", error);
+        });
+    });
+
+    document.getElementById("borrarPorPosicion").addEventListener("click", () => {
+      const posicionABorrar = document.getElementById("borrarPosicion").value;
+      borrarPorPosicion(posicionABorrar);
+    });
+  
+    document.getElementById("modificar").addEventListener("click", () => {
+      const nombre = document.getElementById("modificarNombre").value;
+      obtenerDetallesPorNombre(nombre);
+  });
+
+
+    document.getElementById("listarArgentinos").addEventListener("click", () => {
+      mostrar();
+      mostrarArgentinos();
+    });
+
+    document.getElementById("listarPeso").addEventListener("click", () => {
+      mostrar();
+      mostrarPeso();
+    });
+
+    document.getElementById("alto").addEventListener("click", () => {
+      mostrar();
+      altura();
+    });
+    
+    function mostrar() {
+      datosImprimir.innerHTML = "";
+
+      fetch("/datos")
+        .then((response) => response.json())
+        .then((data) => {
+          data.forEach((jugador) => {
+            const list = document.createElement("li");
+            list.innerHTML = `${jugador.nombre} - ${jugador.nacionalidad} - ${jugador.edad} - ${jugador.estatura} - ${jugador.pos} - ${jugador.peso}`;
+            datosImprimir.appendChild(list);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener tabla:", error);
+        });
+    }
+
+    function mostrarArgentinos() {
+      fetch("/jugadores-argentinos")
+        .then((response) => response.json())
+        .then((data) => {
+          data.forEach((jugador) => {
+            const list = document.createElement("li");
+            list.innerHTML = `${jugador.nombre} - ${jugador.nacionalidad} - ${jugador.edad} - ${jugador.estatura} - ${jugador.pos} - ${jugador.peso}`;
+            datosImprimir.appendChild(list);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener jugadores argentinos:", error);
+        });
+    }
+
+    function mostrarPeso() {
+      fetch("/peso")
+        .then((response) => response.json())
+        .then((data) => {
+          data.forEach((jugador) => {
+            const list = document.createElement("li");
+            list.innerHTML = `${jugador.nombre} - ${jugador.nacionalidad} - ${jugador.edad} - ${jugador.estatura} - ${jugador.pos} - ${jugador.peso}`;
+            datosImprimir.appendChild(list);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener peso:", error);
+        });
+    }
+
+    function altura() {
+      fetch("/altura")
+        .then((response) => response.json())
+        .then((data) => {
+          data.forEach((jugador) => {
+            const list = document.createElement("li");
+            list.innerHTML = `${jugador.nombre} - ${jugador.nacionalidad} - ${jugador.edad} - ${jugador.estatura} - ${jugador.pos} - ${jugador.peso}`;
+            datosImprimir.appendChild(list);
+          });
+        })
+        .catch((error) => {
+          console.error("Error al obtener jugador mas alto:", error);
+        });
+    }
+
+    function borrarPorPosicion(posicionABorrar) {
+  fetch("/borrar", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ posicion: posicionABorrar }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      mostrar();
+    })
+    .catch((error) => {
+      console.error(`Error al borrar jugadores en la posición ${posicionABorrar}:`, error);
+    });
+}
+
+function obtenerDetallesPorNombre(nombre) {
+  fetch(`/jugador-por-nombre/${nombre}`)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.length > 0) {
+        const jugador = data[0];
+        mostrarFormularioModificar(jugador);
+      } else {
+        console.error(`No se encontró ningún jugador con el nombre ${nombre}`);
+      }
+    })
+    .catch((error) => {
+      console.error(`Error al obtener detalles del jugador ${nombre}:`, error);
+    });
+}
+
+function mostrarFormularioModificar(jugador) {
+  const formularioModificar = document.createElement("form");
+  formularioModificar.innerHTML = `
+    <label for="modificarNombre">Nombre:</label>
+    <input type="text" id="nuevoNombre" value="${jugador.nombre}" required>
+    <label for="modificarEdad">Edad:</label>
+    <input type="text" id="nuevaEdad" value="${jugador.edad}" required>
+    <label for="modificarEstatura">Estatura:</label>
+    <input type="text" id="nuevaEstatura" value="${jugador.estatura}" required>
+    <label for="modificarNacionalidad">Nacionalidad:</label>
+    <input type="text" id="nuevaNacionalidad" value="${jugador.nacionalidad}" required>
+    <label for="modificarPosicion">Posicion:</label>
+    <input type="text" id="nuevaPosicion" value="${jugador.pos}" required>
+    <label for="modificarPeso">Peso:</label>
+    <input type="text" id="nuevoPeso" value="${jugador.peso}" required>
+    <button type="submit">Guardar Cambios</button>
+  `;
+
+  formularioModificar.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const nuevoNombre = document.getElementById("nuevoNombre").value;
+    const nuevaEdad = document.getElementById("nuevaEdad").value;
+    const nuevaEstatura = document.getElementById("nuevaEstatura").value;
+    const nuevaNacionalidad = document.getElementById("nuevaNacionalidad").value;
+    const nuevaPosicion = document.getElementById("nuevaPosicion").value;
+    const nuevoPeso = document.getElementById("nuevoPeso").value;
+
+    fetch(`/modificar-por-nombre/${jugador.nombre}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        nuevoNombre,
+        nuevaEdad,
+        nuevaEstatura,
+        nuevaNacionalidad,
+        nuevaPosicion,
+        nuevoPeso,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(`Jugador ${jugador.nombre} modificado:`, data);
+        mostrar();
+      })
+      .catch((error) => {
+        console.error(`Error al modificar jugador ${jugador.nombre}:`, error);
+      });
+  });
+
+  datosImprimir.innerHTML = "";
+  datosImprimir.appendChild(formularioModificar);
+}
+
+
+    mostrar();
+  </script>
+</body>
+</html>
