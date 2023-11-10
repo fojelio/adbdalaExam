@@ -1,10 +1,94 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>crud</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #555;
+    }
+
+    form {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      box-shadow: -3px -1px 98px -18px rgba(0, 0, 0, 0.58);
+      -webkit-box-shadow: -3px -1px 98px -18px rgba(0, 0, 0, 0.58);
+      -moz-box-shadow: -3px -1px 98px -18px rgba(0, 0, 0, 0.58);
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #458ea0;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background-color: #f9f9f9;
+      margin: 5px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    button.list-buttons {
+      background-color: #008CBA;
+      margin: 10px;
+    }
+
+    button.list-buttons:hover {
+      background-color: #0077A3;
+    }
+
+    #datos {
+      max-width: 600px;
+      margin: 20px auto;
+    }
+  </style>
 </head>
+
 <body>
-  <h1>Crud abdala</h1>
+  <h1>CRUD ABDALA</h1>
 
   <h2>Ingresar datos en la tabla Jugadores</h2>
 
@@ -31,11 +115,11 @@
 
   <label for="borrarPosicion">Borrar por posicion:</label>
   <input type="text" id="borrarPosicion" placeholder="Ingrese la posición">
-  <button id="borrarPorPosicion">Borrar por PosicionÑ</button>
+  <button id="borrarPorPosicion">Borrar por Posicion</button>
 
   <label for="modificar">Modificar nombre:</label>
   <input type="text" id="modificarNombre" placeholder="Ingrese el nombre del jugador">
-  <button id="modificar">Modificar nombre</button>
+  <button id="btnModificar">Modificar nombre</button>
 
 
   <h2></h2>
@@ -77,12 +161,11 @@
       const posicionABorrar = document.getElementById("borrarPosicion").value;
       borrarPorPosicion(posicionABorrar);
     });
-  
-    document.getElementById("modificar").addEventListener("click", () => {
+
+    document.getElementById("btnModificar").addEventListener("click", () => {
       const nombre = document.getElementById("modificarNombre").value;
       obtenerDetallesPorNombre(nombre);
-  });
-
+    });
 
     document.getElementById("listarArgentinos").addEventListener("click", () => {
       mostrar();
@@ -98,7 +181,7 @@
       mostrar();
       altura();
     });
-    
+
     function mostrar() {
       datosImprimir.innerHTML = "";
 
@@ -162,41 +245,41 @@
     }
 
     function borrarPorPosicion(posicionABorrar) {
-  fetch("/borrar", {
-    method: "DELETE",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ posicion: posicionABorrar }),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      mostrar();
-    })
-    .catch((error) => {
-      console.error(`Error al borrar jugadores en la posición ${posicionABorrar}:`, error);
-    });
-}
+      fetch("/borrar", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ posicion: posicionABorrar }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          mostrar();
+        })
+        .catch((error) => {
+          console.error(`Error al borrar jugadores en la posición ${posicionABorrar}:`, error);
+        });
+    }
 
-function obtenerDetallesPorNombre(nombre) {
-  fetch(`/jugador-por-nombre/${nombre}`)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.length > 0) {
-        const jugador = data[0];
-        mostrarFormularioModificar(jugador);
-      } else {
-        console.error(`No se encontró ningún jugador con el nombre ${nombre}`);
-      }
-    })
-    .catch((error) => {
-      console.error(`Error al obtener detalles del jugador ${nombre}:`, error);
-    });
-}
+    function obtenerDetallesPorNombre(nombre) {
+      fetch(`/jugador${nombre}`)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.length > 0) {
+            const jugador = data[0];
+            mostrarFormularioModificar(jugador);
+          } else {
+            console.error(`No se encontró ningún jugador con el nombre ${nombre}`);
+          }
+        })
+        .catch((error) => {
+          console.error(`Error al obtener detalles del jugador ${nombre}:`, error);
+        });
+    }
 
-function mostrarFormularioModificar(jugador) {
-  const formularioModificar = document.createElement("form");
-  formularioModificar.innerHTML = `
+    function mostrarFormularioModificar(jugador) {
+      const formularioModificar = document.createElement("form");
+      formularioModificar.innerHTML = `
     <label for="modificarNombre">Nombre:</label>
     <input type="text" id="nuevoNombre" value="${jugador.nombre}" required>
     <label for="modificarEdad">Edad:</label>
@@ -212,45 +295,37 @@ function mostrarFormularioModificar(jugador) {
     <button type="submit">Guardar Cambios</button>
   `;
 
-  formularioModificar.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const nuevoNombre = document.getElementById("nuevoNombre").value;
-    const nuevaEdad = document.getElementById("nuevaEdad").value;
-    const nuevaEstatura = document.getElementById("nuevaEstatura").value;
-    const nuevaNacionalidad = document.getElementById("nuevaNacionalidad").value;
-    const nuevaPosicion = document.getElementById("nuevaPosicion").value;
-    const nuevoPeso = document.getElementById("nuevoPeso").value;
+      formularioModificar.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const nuevoNombre = document.getElementById("nuevoNombre").value;
+        const nuevaEdad = document.getElementById("nuevaEdad").value;
+        const nuevaEstatura = document.getElementById("nuevaEstatura").value;
+        const nuevaNacionalidad = document.getElementById("nuevaNacionalidad").value;
+        const nuevaPosicion = document.getElementById("nuevaPosicion").value;
+        const nuevoPeso = document.getElementById("nuevoPeso").value;
 
-    fetch(`/modificar-por-nombre/${jugador.nombre}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        nuevoNombre,
-        nuevaEdad,
-        nuevaEstatura,
-        nuevaNacionalidad,
-        nuevaPosicion,
-        nuevoPeso,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(`Jugador ${jugador.nombre} modificado:`, data);
-        mostrar();
-      })
-      .catch((error) => {
-        console.error(`Error al modificar jugador ${jugador.nombre}:`, error);
+        fetch(`/modificar${jugador.nombre}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ nuevoNombre, nuevaEdad, nuevaEstatura, nuevaNacionalidad, nuevaPosicion, nuevoPeso }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            mostrar();
+          })
+          .catch((error) => {
+            console.error(`Error al modificar jugador ${jugador.nombre}:`, error);
+          });
       });
-  });
 
-  datosImprimir.innerHTML = "";
-  datosImprimir.appendChild(formularioModificar);
-}
-
+      datosImprimir.innerHTML = "";
+      datosImprimir.appendChild(formularioModificar);
+    }
 
     mostrar();
   </script>
 </body>
+
 </html>
