@@ -74,6 +74,18 @@ db.connect(function (err) {
       });
    });
 
+   app.get('/todos', (req, res) => {
+      const sql = `SELECT * FROM jugadores;`;
+      db.query(sql, (err, result) => {
+         if (err) {
+            console.error("Error al obtener jugadores:", err);
+            res.status(500).json({ error: 'Error interno del servidor' });
+         } else {
+            res.json(result);
+         }
+      });
+   });
+
    app.delete('/borrar', (req, res) => {
       const { posicion } = req.body;
       const sql = `DELETE FROM jugadores WHERE pos = ?`;
